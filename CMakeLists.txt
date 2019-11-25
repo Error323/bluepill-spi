@@ -45,7 +45,6 @@ target_sources (spitest PUBLIC
   ${STM32CUBE}/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_ll_rcc.c
   ${STM32CUBE}/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_ll_utils.c
   ${STM32CUBE}/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_ll_gpio.c
-  ${STM32CUBE}/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_ll_exti.c
   ${STM32CUBE}/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_ll_dma.c
   ${STM32CUBE}/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_ll_spi.c
   ${STM32CUBE}/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_ll_pwr.c

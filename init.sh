@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-STM32CUBE_DIR=$HOME/dev/stm/tools/STM32Cube_FW_F1_V1.7.0
+STM32CUBE_DIR=$HOME/dev/stm/tools/STM32Cube_FW_F1_V1.8.0
 
 set -e
 
