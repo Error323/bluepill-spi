@@ -55,18 +55,20 @@
 //#define MASTER_BOARD
 
 /* Private macro -------------------------------------------------------------*/
+#define CRC16_CCITT 0x1021
+#define SPI_MSG_LEN 8
+
 /* Private variables ---------------------------------------------------------*/
 __IO uint8_t ubButtonPress = 0;
 
 /* Buffer used for transmission */
-uint8_t aBuffer[] = "**** SPI_TwoBoards_FullDuplex_DMA communication **** SPI_TwoBoards_FullDuplex_DMA communication **** SPI_TwoBoards_FullDuplex_DMA communication ****";
-uint8_t aTxBuffer[sizeof(aBuffer)];
-uint8_t ubNbDataToTransmit = sizeof(aBuffer);
+uint8_t aTxBuffer[] = "ABCDEFGH";
+uint8_t ubNbDataToTransmit = SPI_MSG_LEN; // we're using 16 bit words
 __IO uint8_t ubTransmissionComplete = 0;
 
 /* Buffer used for reception */
-uint8_t aRxBuffer[sizeof(aTxBuffer)];
-uint8_t ubNbDataToReceive  = sizeof(aBuffer);
+uint8_t aRxBuffer[SPI_MSG_LEN];
+uint8_t ubNbDataToReceive  = SPI_MSG_LEN; // we're using 16 bit words
 __IO uint8_t ubReceptionComplete = 0;
 
 /* Private function prototypes -----------------------------------------------*/
@@ -104,14 +106,6 @@ int main(void)
 
   /* Configure DMA channels for the SPI2  */
   Configure_DMA();
-
-#ifdef MASTER_BOARD
-  /* Initialize User push-button in EXTI mode */
-  UserButton_Init();
-
-  /* Wait for User push-button press to start transfer */
-  WaitForUserButtonPress();
-#endif
 
   /* Enable the SPI2 peripheral */
   Activate_SPI();
@@ -226,14 +220,11 @@ void Configure_SPI(void)
   LL_SPI_SetClockPolarity(SPI2, LL_SPI_POLARITY_LOW);
   /* Reset value is LL_SPI_MSB_FIRST */
   LL_SPI_SetTransferBitOrder(SPI2, LL_SPI_MSB_FIRST);
-  LL_SPI_SetDataWidth(SPI2, LL_SPI_DATAWIDTH_8BIT);
+  LL_SPI_SetDataWidth(SPI2, LL_SPI_DATAWIDTH_16BIT);
   LL_SPI_SetNSSMode(SPI2, LL_SPI_NSS_SOFT);
-#ifdef MASTER_BOARD
-  LL_SPI_SetMode(SPI2, LL_SPI_MODE_MASTER);
-#else
-  /* Reset value is LL_SPI_MODE_SLAVE */
+  /* Set SPI2 CRC Polynomial to XModem 16 bit */
+  LL_SPI_SetCRCPolynomial(SPI2, CRC16_CCITT);
   LL_SPI_SetMode(SPI2, LL_SPI_MODE_SLAVE);
-#endif /* MASTER_BOARD */
 
   /* Configure SPI2 DMA transfer interrupts */
   /* Enable DMA RX Interrupt */
@@ -249,6 +240,9 @@ void Configure_SPI(void)
   */
 void Activate_SPI(void)
 {
+  /* Enable CRC for SPI2 */
+  LL_SPI_EnableCRC(SPI2);
+
   /* Enable SPI2 */
   LL_SPI_Enable(SPI2);
 
@@ -313,50 +307,6 @@ void LED_Blinking(uint32_t Period)
   }
 }
 
-#ifdef MASTER_BOARD
-/**
-  * @brief  Configures User push-button in GPIO or EXTI Line Mode.
-  * @param  None
-  * @retval None
-  */
-void UserButton_Init(void)
-{
-  /* Enable the BUTTON Clock */
-  USER_BUTTON_GPIO_CLK_ENABLE();
-
-  /* Configure GPIO for BUTTON */
-  LL_GPIO_SetPinMode(USER_BUTTON_GPIO_PORT, USER_BUTTON_PIN, LL_GPIO_MODE_INPUT);
-
-  /* Connect External Line to the GPIO*/
-  USER_BUTTON_SYSCFG_SET_EXTI();
-
-  /* Enable a rising trigger External line 13 Interrupt */
-  USER_BUTTON_EXTI_LINE_ENABLE();
-  USER_BUTTON_EXTI_FALLING_TRIG_ENABLE();
-
-  /* Configure NVIC for USER_BUTTON_EXTI_IRQn */
-  NVIC_EnableIRQ(USER_BUTTON_EXTI_IRQn);
-  NVIC_SetPriority(USER_BUTTON_EXTI_IRQn, 0x03);
-}
-
-/**
-  * @brief  Wait for User push-button press to start transfer.
-  * @param  None
-  * @retval None
-  */
-  /*  */
-void WaitForUserButtonPress(void)
-{
-  while (ubButtonPress == 0)
-  {
-    LL_GPIO_TogglePin(LED2_GPIO_PORT, LED2_PIN);
-    LL_mDelay(LED_BLINK_FAST);
-  }
-  /* Ensure that LED2 is turned Off */
-  LED_Off();
-}
-#endif
-
 /**
   * @brief  Wait end of transfer and check if received Data are well.
   * @param  None
@@ -376,41 +326,8 @@ void WaitAndCheckEndOfTransfer(void)
   }
   /* Disable DMA1 Rx Channel */
   LL_DMA_DisableChannel(DMA1, LL_DMA_CHANNEL_4);
-  /* 3 - Compare Transmit data to receive data */
-  if(Buffercmp8((uint8_t*)aBuffer, (uint8_t*)aRxBuffer, ubNbDataToTransmit))
-  {
-    /* Processing Error */
-    LED_Blinking(LED_BLINK_ERROR);
-  }
-  else
-  {
-    /* Turn On Led if data are well received */
-    LED_On();
-  }
-}
-
-/**
-* @brief Compares two 8-bit buffers and returns the comparison result.
-* @param pBuffer1: pointer to the source buffer to be compared to.
-* @param pBuffer2: pointer to the second source buffer to be compared to the first.
-* @param BufferLength: buffer's length.
-* @retval   0: Comparison is OK (the two Buffers are identical)
-*           Value different from 0: Comparison is NOK (Buffers are different)
-*/
-uint8_t Buffercmp8(uint8_t* pBuffer1, uint8_t* pBuffer2, uint8_t BufferLength)
-{
-  while (BufferLength--)
-  {
-    if (*pBuffer1 != *pBuffer2)
-    {
-      return 1;
-    }
-
-    pBuffer1++;
-    pBuffer2++;
-  }
-
-  return 0;
+  /* Turn On Led if data are well received */
+  LED_On();
 }
 
 /**
@@ -468,17 +385,6 @@ void SystemClock_Config(void)
 /******************************************************************************/
 /*   USER IRQ HANDLER TREATMENT Functions                                     */
 /******************************************************************************/
-/**
-  * @brief  Function to manage User push-button
-  * @param  None
-  * @retval None
-  */
-void UserButton_Callback(void)
-{
-  /* Update User push-button variable : to be checked in waiting loop in main program */
-  ubButtonPress = 1;
-}
-
 /**
   * @brief  Function called from DMA1 IRQ Handler when Rx transfer is completed
   * @param  None

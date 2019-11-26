@@ -165,35 +165,25 @@ void SysTick_Handler(void)
 /******************************************************************************/
 
 /**
-  * @brief  This function handles external lines 10 to 15 interrupt request.
-  * @param  None
-  * @retval None
-  */
-void USER_BUTTON_IRQHANDLER(void)
-{
-  /* Manage Flags */
-  if(LL_EXTI_IsActiveFlag_0_31(USER_BUTTON_EXTI_LINE) != RESET)
-  {
-    LL_EXTI_ClearFlag_0_31(USER_BUTTON_EXTI_LINE);
-
-    /* Manage code in main.c */
-    UserButton_Callback(); 
-  }
-}
-
-/**
   * @brief  This function handles DMA1 interrupt request.
   * @param  None
   * @retval None
   */
 void DMA1_Channel4_IRQHandler(void)
 {
-
   if(LL_DMA_IsActiveFlag_TC4(DMA1))
   {
     LL_DMA_ClearFlag_GI4(DMA1);
-    /* Call function Reception complete Callback */
-    DMA1_ReceiveComplete_Callback();
+    if(LL_SPI_IsActiveFlag_CRCERR(SPI2))
+    {
+      /* Call Error function */
+      SPI2_TransferError_Callback();
+    }
+    else
+    {
+      /* Call function Reception complete Callback */
+      DMA1_ReceiveComplete_Callback();
+    }
   }
   else if(LL_DMA_IsActiveFlag_TE4(DMA1))
   {
