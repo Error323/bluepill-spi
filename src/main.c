@@ -7,13 +7,13 @@
 __IO uint8_t ubButtonPress = 0;
 
 /* Buffer used for transmission */
-uint16_t aTxBuffer[] = {0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7};
+uint16_t aTxBuffer[SPI_MSG_LEN];
 uint8_t ubNbDataToTransmit = SPI_MSG_LEN;
 __IO uint8_t ubTransmissionComplete = 0;
 
 /* Buffer used for reception */
 uint16_t aRxBuffer[SPI_MSG_LEN];
-uint8_t ubNbDataToReceive  = SPI_MSG_LEN;
+uint8_t ubNbDataToReceive  = SPI_MSG_LEN + 1;
 __IO uint8_t ubReceptionComplete = 0;
 
 /* Private function prototypes -----------------------------------------------*/

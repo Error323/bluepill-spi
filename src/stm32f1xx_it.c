@@ -174,6 +174,8 @@ void DMA1_Channel4_IRQHandler(void)
   if(LL_DMA_IsActiveFlag_TC4(DMA1))
   {
     LL_DMA_ClearFlag_GI4(DMA1);
+
+    /* Check if CRC checksum was valid */
     if(LL_SPI_IsActiveFlag_CRCERR(SPI2))
     {
       /* Call Error function */
