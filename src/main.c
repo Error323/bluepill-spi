@@ -1,19 +1,19 @@
 #include "main.h"
 
 #define CRC16_CCITT 0x1021
-#define SPI_MSG_LEN 8
+#define SPI_MSG_LEN 7
 
 /* Private variables ---------------------------------------------------------*/
 __IO uint8_t ubButtonPress = 0;
 
 /* Buffer used for transmission */
-uint8_t aTxBuffer[] = "ABCDEFGH";
-uint8_t ubNbDataToTransmit = SPI_MSG_LEN; // we're using 16 bit words
+uint16_t aTxBuffer[] = {0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7};
+uint8_t ubNbDataToTransmit = SPI_MSG_LEN;
 __IO uint8_t ubTransmissionComplete = 0;
 
 /* Buffer used for reception */
-uint8_t aRxBuffer[SPI_MSG_LEN];
-uint8_t ubNbDataToReceive  = SPI_MSG_LEN; // we're using 16 bit words
+uint16_t aRxBuffer[SPI_MSG_LEN];
+uint8_t ubNbDataToReceive  = SPI_MSG_LEN;
 __IO uint8_t ubReceptionComplete = 0;
 
 /* Private function prototypes -----------------------------------------------*/
@@ -90,7 +90,7 @@ void Configure_DMA(void)
                         LL_DMA_CHANNEL_4,
                         LL_DMA_DIRECTION_PERIPH_TO_MEMORY | LL_DMA_PRIORITY_HIGH | LL_DMA_MODE_NORMAL |
                         LL_DMA_PERIPH_NOINCREMENT | LL_DMA_MEMORY_INCREMENT |
-                        LL_DMA_PDATAALIGN_BYTE | LL_DMA_MDATAALIGN_BYTE);
+                        LL_DMA_PDATAALIGN_HALFWORD | LL_DMA_MDATAALIGN_HALFWORD);
   LL_DMA_ConfigAddresses(DMA1,
                          LL_DMA_CHANNEL_4,
                          LL_SPI_DMA_GetRegAddr(SPI2), (uint32_t)aRxBuffer,
@@ -104,7 +104,7 @@ void Configure_DMA(void)
                         LL_DMA_CHANNEL_5,
                         LL_DMA_DIRECTION_MEMORY_TO_PERIPH | LL_DMA_PRIORITY_HIGH | LL_DMA_MODE_NORMAL |
                         LL_DMA_PERIPH_NOINCREMENT | LL_DMA_MEMORY_INCREMENT |
-                        LL_DMA_PDATAALIGN_BYTE | LL_DMA_MDATAALIGN_BYTE);
+                        LL_DMA_PDATAALIGN_HALFWORD | LL_DMA_MDATAALIGN_HALFWORD);
   LL_DMA_ConfigAddresses(DMA1, LL_DMA_CHANNEL_5, (uint32_t)aTxBuffer, LL_SPI_DMA_GetRegAddr(SPI2),
                          LL_DMA_GetDataTransferDirection(DMA1, LL_DMA_CHANNEL_5));
   LL_DMA_SetDataLength(DMA1, LL_DMA_CHANNEL_5, ubNbDataToTransmit);
