@@ -5,14 +5,15 @@
 #define SPI_MSG_LEN 1024
 
 /* Buffer used for transmission */
-uint16_t aTxBuffer[2][SPI_MSG_LEN];
+uint16_t aTxBuffer[SPI_MSG_LEN];
 uint16_t ubNbDataToTransmit = SPI_MSG_LEN;
 __IO uint8_t ubTransmissionComplete = 0;
 
 /* Buffer used for reception */
-uint16_t aRxBuffer[2][SPI_MSG_LEN];
+uint16_t aRxBuffer[SPI_MSG_LEN];
 uint16_t ubNbDataToReceive = SPI_MSG_LEN + 1;
 __IO uint8_t ubReceptionComplete = 0;
+__IO uint8_t ubReceptionCRCErrors = 0;
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
@@ -46,10 +47,23 @@ int main(void)
 
   /* Enable the SPI2 peripheral */
   Activate_SPI();
-
+  
+  uint32_t counter = 0;
   while (1)
   {
+    while (ubTransmissionComplete != 1)
+    {
+    }
 
+    ubTransmissionComplete = 0;
+
+    while (ubReceptionComplete != 1)
+    {
+    }
+
+    ubReceptionComplete = 0;
+
+    counter++;
   }
 }
 
@@ -302,10 +316,11 @@ void SystemClock_Config(void)
  * @param  None
  * @retval None
  */
-void DMA1_ReceiveComplete_Callback(void)
+void DMA1_ReceiveComplete_Callback(int ok)
 {
   /* DMA Rx transfer completed */
   ubReceptionComplete = 1;
+  ubReceptionCRCErrors += 1 ^ ok;
 }
 
 /**

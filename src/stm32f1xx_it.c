@@ -170,12 +170,12 @@ void DMA1_Channel4_IRQHandler(void)
     if (LL_SPI_IsActiveFlag_CRCERR(SPI2))
     {
       /* Call Error function */
-      SPI2_TransferError_Callback();
+      DMA1_ReceiveComplete_Callback(0);
     }
     else
     {
       /* Call function Reception complete Callback */
-      DMA1_ReceiveComplete_Callback();
+      DMA1_ReceiveComplete_Callback(1);
     }
   }
   else if (LL_DMA_IsActiveFlag_TE4(DMA1))

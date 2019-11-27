@@ -73,7 +73,7 @@
 
 /* Exported macro ------------------------------------------------------------*/
 /* Exported functions ------------------------------------------------------- */
-void DMA1_ReceiveComplete_Callback(void);
+void DMA1_ReceiveComplete_Callback(int);
 void DMA1_TransmitComplete_Callback(void);
 void SPI2_TransferError_Callback(void);
 #endif /* __MAIN_H */
