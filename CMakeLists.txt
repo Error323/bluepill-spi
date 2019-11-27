@@ -63,6 +63,7 @@ target_compile_options (spitest PUBLIC
   -Wno-unused-parameter
   -Wall
   -Wextra
+  -Wpedantic
   -mthumb
   -mcpu=cortex-m3
   -mlittle-endian
