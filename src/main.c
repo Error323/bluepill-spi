@@ -11,26 +11,25 @@ __IO uint8_t ubTransmissionComplete = 0;
 
 /* Buffer used for reception */
 uint16_t aRxBuffer[2][SPI_MSG_LEN];
-uint16_t ubNbDataToReceive  = SPI_MSG_LEN + 1;
+uint16_t ubNbDataToReceive = SPI_MSG_LEN + 1;
 __IO uint8_t ubReceptionComplete = 0;
 
 /* Private function prototypes -----------------------------------------------*/
-void     SystemClock_Config(void);
-void     Configure_DMA(void);
-void     Configure_SPI(void);
-void     Activate_SPI(void);
-void     LED_Init(void);
-void     LED_On(void);
-void     LED_Blinking(uint32_t Period);
-void     LED_Off(void);
-void     WaitAndCheckEndOfTransfer(void);
+void SystemClock_Config(void);
+void Configure_DMA(void);
+void Configure_SPI(void);
+void Activate_SPI(void);
+void LED_Init(void);
+void LED_On(void);
+void LED_Blinking(uint32_t Period);
+void LED_Off(void);
 /* Private functions ---------------------------------------------------------*/
 
 /**
-  * @brief  Main program
-  * @param  None
-  * @retval None
-  */
+ * @brief  Main program
+ * @param  None
+ * @retval None
+ */
 int main(void)
 {
   /* Configure the system clock to 72 MHz */
@@ -48,27 +47,23 @@ int main(void)
   /* Enable the SPI2 peripheral */
   Activate_SPI();
 
-  /* Wait for the end of the transfer and check received data */
-  /* LED blinking FAST during waiting time */
-  WaitAndCheckEndOfTransfer();
-
-  /* Infinite loop */
   while (1)
   {
+
   }
 }
 
 /**
-  * @brief This function configures the DMA Channels for SPI2
-  * @note  This function is used to :
-  *        -1- Enable DMA1 clock
-  *        -2- Configure NVIC for DMA1 transfer complete/error interrupts
-  *        -3- Configure the DMA1_Channel4 functional parameters
-  *        -4- Configure the DMA1_Channel5 functional parameters
-  *        -5- Enable DMA1 interrupts complete/error
-  * @param   None
-  * @retval  None
-  */
+ * @brief This function configures the DMA Channels for SPI2
+ * @note  This function is used to :
+ *        -1- Enable DMA1 clock
+ *        -2- Configure NVIC for DMA1 transfer complete/error interrupts
+ *        -3- Configure the DMA1_Channel4 functional parameters
+ *        -4- Configure the DMA1_Channel5 functional parameters
+ *        -5- Enable DMA1 interrupts complete/error
+ * @param   None
+ * @retval  None
+ */
 void Configure_DMA(void)
 {
   /* DMA1 used for SPI2 Transmission
@@ -77,36 +72,35 @@ void Configure_DMA(void)
   /* (1) Enable the clock of DMA1 and DMA1 */
   LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_DMA1);
 
- /* (2) Configure NVIC for DMA transfer complete/error interrupts */
+  /* (2) Configure NVIC for DMA transfer complete/error interrupts */
   NVIC_SetPriority(DMA1_Channel4_IRQn, 0);
   NVIC_EnableIRQ(DMA1_Channel4_IRQn);
   NVIC_SetPriority(DMA1_Channel5_IRQn, 0);
   NVIC_EnableIRQ(DMA1_Channel5_IRQn);
 
   /* (3) Configure the DMA1_Channel4 functional parameters */
-  LL_DMA_ConfigTransfer(DMA1,
-                        LL_DMA_CHANNEL_4,
-                        LL_DMA_DIRECTION_PERIPH_TO_MEMORY | LL_DMA_PRIORITY_HIGH | LL_DMA_MODE_NORMAL |
-                        LL_DMA_PERIPH_NOINCREMENT | LL_DMA_MEMORY_INCREMENT |
-                        LL_DMA_PDATAALIGN_HALFWORD | LL_DMA_MDATAALIGN_HALFWORD);
-  LL_DMA_ConfigAddresses(DMA1,
-                         LL_DMA_CHANNEL_4,
-                         LL_SPI_DMA_GetRegAddr(SPI2), (uint32_t)aRxBuffer,
-                         LL_DMA_GetDataTransferDirection(DMA1, LL_DMA_CHANNEL_4));
+  LL_DMA_ConfigTransfer(
+      DMA1, LL_DMA_CHANNEL_4,
+      LL_DMA_DIRECTION_PERIPH_TO_MEMORY | LL_DMA_PRIORITY_HIGH |
+          LL_DMA_MODE_NORMAL | LL_DMA_PERIPH_NOINCREMENT |
+          LL_DMA_MEMORY_INCREMENT | LL_DMA_PDATAALIGN_HALFWORD |
+          LL_DMA_MDATAALIGN_HALFWORD);
+  LL_DMA_ConfigAddresses(
+      DMA1, LL_DMA_CHANNEL_4, LL_SPI_DMA_GetRegAddr(SPI2), (uint32_t)aRxBuffer,
+      LL_DMA_GetDataTransferDirection(DMA1, LL_DMA_CHANNEL_4));
   LL_DMA_SetDataLength(DMA1, LL_DMA_CHANNEL_4, ubNbDataToReceive);
 
-
-
   /* (4) Configure the DMA1_Channel5 functional parameters */
-  LL_DMA_ConfigTransfer(DMA1,
-                        LL_DMA_CHANNEL_5,
-                        LL_DMA_DIRECTION_MEMORY_TO_PERIPH | LL_DMA_PRIORITY_HIGH | LL_DMA_MODE_NORMAL |
-                        LL_DMA_PERIPH_NOINCREMENT | LL_DMA_MEMORY_INCREMENT |
-                        LL_DMA_PDATAALIGN_HALFWORD | LL_DMA_MDATAALIGN_HALFWORD);
-  LL_DMA_ConfigAddresses(DMA1, LL_DMA_CHANNEL_5, (uint32_t)aTxBuffer, LL_SPI_DMA_GetRegAddr(SPI2),
-                         LL_DMA_GetDataTransferDirection(DMA1, LL_DMA_CHANNEL_5));
+  LL_DMA_ConfigTransfer(
+      DMA1, LL_DMA_CHANNEL_5,
+      LL_DMA_DIRECTION_MEMORY_TO_PERIPH | LL_DMA_PRIORITY_HIGH |
+          LL_DMA_MODE_NORMAL | LL_DMA_PERIPH_NOINCREMENT |
+          LL_DMA_MEMORY_INCREMENT | LL_DMA_PDATAALIGN_HALFWORD |
+          LL_DMA_MDATAALIGN_HALFWORD);
+  LL_DMA_ConfigAddresses(
+      DMA1, LL_DMA_CHANNEL_5, (uint32_t)aTxBuffer, LL_SPI_DMA_GetRegAddr(SPI2),
+      LL_DMA_GetDataTransferDirection(DMA1, LL_DMA_CHANNEL_5));
   LL_DMA_SetDataLength(DMA1, LL_DMA_CHANNEL_5, ubNbDataToTransmit);
-
 
   /* (5) Enable DMA interrupts complete/error */
   LL_DMA_EnableIT_TC(DMA1, LL_DMA_CHANNEL_4);
@@ -116,16 +110,16 @@ void Configure_DMA(void)
 }
 
 /**
-  * @brief This function configures SPI2.
-  * @note  This function is used to :
-  *        -1- Enables GPIO clock and configures the SPI2 pins.
-  *        -2- Configure SPI2 functional parameters.
-  * @note   Peripheral configuration is minimal configuration from reset values.
-  *         Thus, some useless LL unitary functions calls below are provided as
-  *         commented examples - setting is default configuration from reset.
-  * @param  None
-  * @retval None
-  */
+ * @brief This function configures SPI2.
+ * @note  This function is used to :
+ *        -1- Enables GPIO clock and configures the SPI2 pins.
+ *        -2- Configure SPI2 functional parameters.
+ * @note   Peripheral configuration is minimal configuration from reset values.
+ *         Thus, some useless LL unitary functions calls below are provided as
+ *         commented examples - setting is default configuration from reset.
+ * @param  None
+ * @retval None
+ */
 void Configure_SPI(void)
 {
   /* (1) Enables GPIO clock and configures the SPI2 pins ********************/
@@ -153,7 +147,7 @@ void Configure_SPI(void)
 
   /* Configure SPI2 communication */
   LL_SPI_SetBaudRatePrescaler(SPI2, LL_SPI_BAUDRATEPRESCALER_DIV32);
-  LL_SPI_SetTransferDirection(SPI2,LL_SPI_FULL_DUPLEX);
+  LL_SPI_SetTransferDirection(SPI2, LL_SPI_FULL_DUPLEX);
   LL_SPI_SetClockPhase(SPI2, LL_SPI_PHASE_1EDGE);
   LL_SPI_SetClockPolarity(SPI2, LL_SPI_POLARITY_LOW);
   /* Reset value is LL_SPI_MSB_FIRST */
@@ -172,10 +166,10 @@ void Configure_SPI(void)
 }
 
 /**
-  * @brief  This function Activate SPI2
-  * @param  None
-  * @retval None
-  */
+ * @brief  This function Activate SPI2
+ * @param  None
+ * @retval None
+ */
 void Activate_SPI(void)
 {
   /* Enable CRC for SPI2 */
@@ -190,10 +184,10 @@ void Activate_SPI(void)
 }
 
 /**
-  * @brief  Initialize LED2.
-  * @param  None
-  * @retval None
-  */
+ * @brief  Initialize LED2.
+ * @param  None
+ * @retval None
+ */
 void LED_Init(void)
 {
   /* Enable the LED2 Clock */
@@ -205,10 +199,10 @@ void LED_Init(void)
 }
 
 /**
-  * @brief  Turn-on LED2.
-  * @param  None
-  * @retval None
-  */
+ * @brief  Turn-on LED2.
+ * @param  None
+ * @retval None
+ */
 void LED_On(void)
 {
   /* Turn LED2 on */
@@ -216,10 +210,10 @@ void LED_On(void)
 }
 
 /**
-  * @brief  Turn-off LED2.
-  * @param  None
-  * @retval None
-  */
+ * @brief  Turn-off LED2.
+ * @param  None
+ * @retval None
+ */
 void LED_Off(void)
 {
   /* Turn LED2 off */
@@ -227,14 +221,16 @@ void LED_Off(void)
 }
 
 /**
-  * @brief  Set LED2 to Blinking mode for an infinite loop (toggle period based on value provided as input parameter).
-  * @param  Period : Period of time (in ms) between each toggling of LED
-  *   This parameter can be user defined values. Pre-defined values used in that example are :
-  *     @arg LED_BLINK_FAST : Fast Blinking
-  *     @arg LED_BLINK_SLOW : Slow Blinking
-  *     @arg LED_BLINK_ERROR : Error specific Blinking
-  * @retval None
-  */
+ * @brief  Set LED2 to Blinking mode for an infinite loop (toggle period based
+ * on value provided as input parameter).
+ * @param  Period : Period of time (in ms) between each toggling of LED
+ *   This parameter can be user defined values. Pre-defined values used in that
+ * example are :
+ *     @arg LED_BLINK_FAST : Fast Blinking
+ *     @arg LED_BLINK_SLOW : Slow Blinking
+ *     @arg LED_BLINK_ERROR : Error specific Blinking
+ * @retval None
+ */
 void LED_Blinking(uint32_t Period)
 {
   /* Toggle LED2 in an infinite loop */
@@ -246,52 +242,29 @@ void LED_Blinking(uint32_t Period)
 }
 
 /**
-  * @brief  Wait end of transfer and check if received Data are well.
-  * @param  None
-  * @retval None
-  */
-void WaitAndCheckEndOfTransfer(void)
-{
-  /* 1 - Wait end of transmission */
-  while (ubTransmissionComplete != 1)
-  {
-  }
-  /* Disable DMA1 Tx Channel */
-  LL_DMA_DisableChannel(DMA1, LL_DMA_CHANNEL_5);
-  /* 2 - Wait end of reception */
-  while (ubReceptionComplete != 1)
-  {
-  }
-  /* Disable DMA1 Rx Channel */
-  LL_DMA_DisableChannel(DMA1, LL_DMA_CHANNEL_4);
-  /* Turn On Led if data are well received */
-  LED_On();
-}
-
-/**
-  * @brief  System Clock Configuration
-  *         The system Clock is configured as follow :
-  *            System Clock source            = PLL (HSE)
-  *            SYSCLK(Hz)                     = 72000000
-  *            HCLK(Hz)                       = 72000000
-  *            AHB Prescaler                  = 1
-  *            APB1 Prescaler                 = 2
-  *            APB2 Prescaler                 = 1
-  *            HSE Frequency(Hz)              = 8000000
-  *            PLLMUL                         = 9
-  *            Flash Latency(WS)              = 2
-  * @param  None
-  * @retval None
-  */
+ * @brief  System Clock Configuration
+ *         The system Clock is configured as follow :
+ *            System Clock source            = PLL (HSE)
+ *            SYSCLK(Hz)                     = 72000000
+ *            HCLK(Hz)                       = 72000000
+ *            AHB Prescaler                  = 1
+ *            APB1 Prescaler                 = 2
+ *            APB2 Prescaler                 = 1
+ *            HSE Frequency(Hz)              = 8000000
+ *            PLLMUL                         = 9
+ *            Flash Latency(WS)              = 2
+ * @param  None
+ * @retval None
+ */
 void SystemClock_Config(void)
 {
   /* Set FLASH latency */
   LL_FLASH_SetLatency(LL_FLASH_LATENCY_2);
 
   /* Enable HSE oscillator */
-  //LL_RCC_HSE_EnableBypass();
+  // LL_RCC_HSE_EnableBypass();
   LL_RCC_HSE_Enable();
-  while(LL_RCC_HSE_IsReady() != 1)
+  while (LL_RCC_HSE_IsReady() != 1)
   {
   };
 
@@ -299,14 +272,14 @@ void SystemClock_Config(void)
   LL_RCC_PLL_ConfigDomain_SYS(LL_RCC_PLLSOURCE_HSE_DIV_1, LL_RCC_PLL_MUL_9);
 
   LL_RCC_PLL_Enable();
-  while(LL_RCC_PLL_IsReady() != 1)
+  while (LL_RCC_PLL_IsReady() != 1)
   {
   };
 
   /* Sysclk activation on the main PLL */
   LL_RCC_SetAHBPrescaler(LL_RCC_SYSCLK_DIV_1);
   LL_RCC_SetSysClkSource(LL_RCC_SYS_CLKSOURCE_PLL);
-  while(LL_RCC_GetSysClkSource() != LL_RCC_SYS_CLKSOURCE_STATUS_PLL)
+  while (LL_RCC_GetSysClkSource() != LL_RCC_SYS_CLKSOURCE_STATUS_PLL)
   {
   };
 
@@ -317,17 +290,18 @@ void SystemClock_Config(void)
   /* Set systick to 1ms in using frequency set to 72MHz */
   LL_Init1msTick(72000000);
 
-  /* Update CMSIS variable (which can be updated also through SystemCoreClockUpdate function) */
+  /* Update CMSIS variable (which can be updated also through
+   * SystemCoreClockUpdate function) */
   LL_SetSystemCoreClock(72000000);
 }
 /******************************************************************************/
 /*   USER IRQ HANDLER TREATMENT Functions                                     */
 /******************************************************************************/
 /**
-  * @brief  Function called from DMA1 IRQ Handler when Rx transfer is completed
-  * @param  None
-  * @retval None
-  */
+ * @brief  Function called from DMA1 IRQ Handler when Rx transfer is completed
+ * @param  None
+ * @retval None
+ */
 void DMA1_ReceiveComplete_Callback(void)
 {
   /* DMA Rx transfer completed */
@@ -335,10 +309,10 @@ void DMA1_ReceiveComplete_Callback(void)
 }
 
 /**
-  * @brief  Function called from DMA1 IRQ Handler when Tx transfer is completed
-  * @param  None
-  * @retval None
-  */
+ * @brief  Function called from DMA1 IRQ Handler when Tx transfer is completed
+ * @param  None
+ * @retval None
+ */
 void DMA1_TransmitComplete_Callback(void)
 {
   /* DMA Tx transfer completed */
@@ -346,10 +320,10 @@ void DMA1_TransmitComplete_Callback(void)
 }
 
 /**
-  * @brief  Function called in case of error detected in SPI IT Handler
-  * @param  None
-  * @retval None
-  */
+ * @brief  Function called in case of error detected in SPI IT Handler
+ * @param  None
+ * @retval None
+ */
 void SPI2_TransferError_Callback(void)
 {
   /* Disable DMA1 Rx Channel */
@@ -361,23 +335,21 @@ void SPI2_TransferError_Callback(void)
   LED_Blinking(LED_BLINK_ERROR);
 }
 
-#ifdef  USE_FULL_ASSERT
+#ifdef USE_FULL_ASSERT
 
 /**
-  * @brief  Reports the name of the source file and the source line number
-  *         where the assert_param error has occurred.
-  * @param  file: pointer to the source file name
-  * @param  line: assert_param error line source number
-  * @retval None
-  */
+ * @brief  Reports the name of the source file and the source line number
+ *         where the assert_param error has occurred.
+ * @param  file: pointer to the source file name
+ * @param  line: assert_param error line source number
+ * @retval None
+ */
 void assert_failed(uint8_t *file, uint32_t line)
 {
-  /* User can add his own implementation to report the file name and line number,
-     ex: printf("Wrong parameters value: file %s on line %d", file, line) */
+  /* User can add his own implementation to report the file name and line
+     number, ex: printf("Wrong parameters value: file %s on line %d", file,
+     line) */
 
-  /* Infinite loop */
-  while (1)
-  {
-  }
+  LED_Blinking(100);
 }
 #endif
