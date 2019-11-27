@@ -1,19 +1,17 @@
 #include "main.h"
 
+/* The CRC16 is supported by python's crc16 library */
 #define CRC16_CCITT 0x1021
-#define SPI_MSG_LEN 7
-
-/* Private variables ---------------------------------------------------------*/
-__IO uint8_t ubButtonPress = 0;
+#define SPI_MSG_LEN 1024
 
 /* Buffer used for transmission */
-uint16_t aTxBuffer[SPI_MSG_LEN];
-uint8_t ubNbDataToTransmit = SPI_MSG_LEN;
+uint16_t aTxBuffer[2][SPI_MSG_LEN];
+uint16_t ubNbDataToTransmit = SPI_MSG_LEN;
 __IO uint8_t ubTransmissionComplete = 0;
 
 /* Buffer used for reception */
-uint16_t aRxBuffer[SPI_MSG_LEN];
-uint8_t ubNbDataToReceive  = SPI_MSG_LEN + 1;
+uint16_t aRxBuffer[2][SPI_MSG_LEN];
+uint16_t ubNbDataToReceive  = SPI_MSG_LEN + 1;
 __IO uint8_t ubReceptionComplete = 0;
 
 /* Private function prototypes -----------------------------------------------*/
@@ -383,12 +381,3 @@ void assert_failed(uint8_t *file, uint32_t line)
   }
 }
 #endif
-/**
-  * @}
-  */
-
-/**
-  * @}
-  */
-
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
