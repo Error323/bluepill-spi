@@ -61,7 +61,7 @@
  */
 #define LED2_PIN LL_GPIO_PIN_13
 #define LED2_GPIO_PORT GPIOC
-#define LED2_GPIO_CLK_ENABLE()                                                 \
+#define LED2_GPIO_CLK_ENABLE() \
   LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_GPIOC)
 
 /**

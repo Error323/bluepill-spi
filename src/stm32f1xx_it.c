@@ -73,11 +73,9 @@ void NMI_Handler(void) {}
  * @param  None
  * @retval None
  */
-void HardFault_Handler(void)
-{
+void HardFault_Handler(void) {
   /* Go to infinite loop when Hard Fault exception occurs */
-  while (1)
-  {
+  while (1) {
   }
 }
 
@@ -86,11 +84,9 @@ void HardFault_Handler(void)
  * @param  None
  * @retval None
  */
-void MemManage_Handler(void)
-{
+void MemManage_Handler(void) {
   /* Go to infinite loop when Memory Manage exception occurs */
-  while (1)
-  {
+  while (1) {
   }
 }
 
@@ -99,11 +95,9 @@ void MemManage_Handler(void)
  * @param  None
  * @retval None
  */
-void BusFault_Handler(void)
-{
+void BusFault_Handler(void) {
   /* Go to infinite loop when Bus Fault exception occurs */
-  while (1)
-  {
+  while (1) {
   }
 }
 
@@ -112,11 +106,9 @@ void BusFault_Handler(void)
  * @param  None
  * @retval None
  */
-void UsageFault_Handler(void)
-{
+void UsageFault_Handler(void) {
   /* Go to infinite loop when Usage Fault exception occurs */
-  while (1)
-  {
+  while (1) {
   }
 }
 
@@ -160,26 +152,19 @@ void SysTick_Handler(void) {}
  * @param  None
  * @retval None
  */
-void DMA1_Channel4_IRQHandler(void)
-{
-  if (LL_DMA_IsActiveFlag_TC4(DMA1))
-  {
+void DMA1_Channel4_IRQHandler(void) {
+  if (LL_DMA_IsActiveFlag_TC4(DMA1)) {
     LL_DMA_ClearFlag_GI4(DMA1);
 
     /* Check if CRC checksum was valid */
-    if (LL_SPI_IsActiveFlag_CRCERR(SPI2))
-    {
+    if (LL_SPI_IsActiveFlag_CRCERR(SPI2)) {
       /* Call Error function */
       DMA1_ReceiveComplete_Callback(0);
-    }
-    else
-    {
+    } else {
       /* Call function Reception complete Callback */
       DMA1_ReceiveComplete_Callback(1);
     }
-  }
-  else if (LL_DMA_IsActiveFlag_TE4(DMA1))
-  {
+  } else if (LL_DMA_IsActiveFlag_TE4(DMA1)) {
     /* Call Error function */
     SPI2_TransferError_Callback();
   }
@@ -190,16 +175,12 @@ void DMA1_Channel4_IRQHandler(void)
  * @param  None
  * @retval None
  */
-void DMA1_Channel5_IRQHandler(void)
-{
-  if (LL_DMA_IsActiveFlag_TC5(DMA1))
-  {
+void DMA1_Channel5_IRQHandler(void) {
+  if (LL_DMA_IsActiveFlag_TC5(DMA1)) {
     LL_DMA_ClearFlag_GI5(DMA1);
     /* Call function Transmission complete Callback */
     DMA1_TransmitComplete_Callback();
-  }
-  else if (LL_DMA_IsActiveFlag_TE5(DMA1))
-  {
+  } else if (LL_DMA_IsActiveFlag_TE5(DMA1)) {
     /* Call Error function */
     SPI2_TransferError_Callback();
   }

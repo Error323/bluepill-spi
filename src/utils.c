@@ -5,4 +5,3 @@ void SwapArrayU16(uint16_t **a, uint16_t **b) {
   *a = *b;
   *b = tmp;
 }
-
