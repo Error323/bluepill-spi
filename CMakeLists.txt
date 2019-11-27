@@ -20,6 +20,7 @@ add_executable (spitest
   src/main.c
   src/stm32f1xx_it.c
   src/system_stm32f1xx.c
+  src/utils.c
 )
 
 target_compile_definitions (spitest PUBLIC
