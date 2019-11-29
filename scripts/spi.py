@@ -8,6 +8,7 @@ import numpy as np
 
 
 def main(args):
+    np.random.seed(0x1337)
     spi = spidev.SpiDev()
     spi.open(args.bus, args.device)
     spi.max_speed_hz = args.speed
@@ -16,7 +17,8 @@ def main(args):
     dt = dt.newbyteorder('>')
 
     if args.send:
-        data = np.arange(1, 8, dtype=dt)
+        data = np.array([48713, 25935, 32857, 42796, 38931, 10992, 61444], dtype=np.uint16)#np.random.randint(0, 0xffff, size=7, dtype=dt) #np.arange(1, 8, dtype=dt)
+        print(data)
         crc = 0xffff if args.crcerr else crc16.crc16xmodem(data.tobytes())
         data = np.append(data, crc)
         data = data.astype(dt).tobytes()
