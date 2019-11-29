@@ -159,6 +159,7 @@ void DMA1_Channel4_IRQHandler(void) {
     /* Check if CRC checksum was valid */
     if (LL_SPI_IsActiveFlag_CRCERR(SPI2)) {
       /* Call Error function */
+      LL_SPI_ClearFlag_CRCERR(SPI2);
       DMA1_ReceiveComplete_Callback(0);
     } else {
       /* Call function Reception complete Callback */

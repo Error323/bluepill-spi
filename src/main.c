@@ -2,7 +2,7 @@
 
 /* The CRC16 is supported by python's crc16 library */
 #define CRC16_CCITT 0x1021
-#define SPI_MSG_LEN 1024
+#define SPI_MSG_LEN 7
 
 /* Buffer used for transmission */
 uint16_t aTxBuffer[SPI_MSG_LEN];
@@ -58,9 +58,15 @@ int main(void) {
       ;
     ubTransmissionComplete = 0;
 
-    Reset_SPI();
-
     counter++;
+
+    if (counter == aRxBuffer[1]) {
+      counter = 0;
+      aTxBuffer[0] = ubReceptionCRCErrors;
+      aTxBuffer[1] = aRxBuffer[1];
+    }
+
+    Reset_SPI();
   }
 }
 
@@ -68,10 +74,25 @@ void Reset_SPI(void) {
   while (LL_SPI_IsActiveFlag_BSY(SPI2))
     ;
 
+  LL_DMA_DisableChannel(DMA1, LL_DMA_CHANNEL_4);
+  LL_DMA_ConfigAddresses(
+      DMA1, LL_DMA_CHANNEL_4, LL_SPI_DMA_GetRegAddr(SPI2), (uint32_t)aRxBuffer,
+      LL_DMA_GetDataTransferDirection(DMA1, LL_DMA_CHANNEL_4));
+  LL_DMA_SetDataLength(DMA1, LL_DMA_CHANNEL_4, ubNbDataToReceive);
+
+  LL_DMA_DisableChannel(DMA1, LL_DMA_CHANNEL_5);
+  LL_DMA_ConfigAddresses(
+      DMA1, LL_DMA_CHANNEL_5, (uint32_t)aTxBuffer, LL_SPI_DMA_GetRegAddr(SPI2),
+      LL_DMA_GetDataTransferDirection(DMA1, LL_DMA_CHANNEL_5));
+  LL_DMA_SetDataLength(DMA1, LL_DMA_CHANNEL_5, ubNbDataToTransmit);
+
   LL_SPI_Disable(SPI2);
   LL_SPI_DisableCRC(SPI2);
   LL_SPI_EnableCRC(SPI2);
   LL_SPI_Enable(SPI2);
+
+  LL_DMA_EnableChannel(DMA1, LL_DMA_CHANNEL_4);
+  LL_DMA_EnableChannel(DMA1, LL_DMA_CHANNEL_5);
 }
 
 /**
